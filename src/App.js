@@ -16,7 +16,7 @@ const App = () => {
     const handleSubmit = async () => {
         try {
             const parsedInput = JSON.parse(jsonInput);
-            const { data } = await axios.post("https://your-backend-url/bfhl", parsedInput);
+            const { data } = await axios.post("https://api-check-henna.vercel.app/", parsedInput);
             setResponse(data);
         } catch (err) {
             alert("Invalid JSON or error in API call");
