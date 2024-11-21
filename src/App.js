@@ -1,25 +1,63 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import React, { useState } from "react";
+import Select from "react-select";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+    const [jsonInput, setJsonInput] = useState("");
+    const [response, setResponse] = useState(null);
+    const [selectedFilters, setSelectedFilters] = useState([]);
+
+    const options = [
+        { value: "alphabets", label: "Alphabets" },
+        { value: "numbers", label: "Numbers" },
+        { value: "highest_lowercase_alphabet", label: "Highest Lowercase Alphabet" },
+    ];
+
+    const handleSubmit = async () => {
+        try {
+            const parsedInput = JSON.parse(jsonInput);
+            const { data } = await axios.post("https://your-backend-url/bfhl", parsedInput);
+            setResponse(data);
+        } catch (err) {
+            alert("Invalid JSON or error in API call");
+        }
+    };
+
+    const renderResponse = () => {
+        if (!response) return null;
+
+        const filteredResponse = {};
+        selectedFilters.forEach((filter) => {
+            if (response[filter.value]) {
+                filteredResponse[filter.value] = response[filter.value];
+            }
+        });
+
+        return <pre>{JSON.stringify(filteredResponse, null, 2)}</pre>;
+    };
+
+    return (
+        <div>
+            <h1>BFHL Challenge</h1>
+            <textarea
+                rows="6"
+                placeholder='Enter JSON e.g., { "data": ["A","1","b"] }'
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+            />
+            <button onClick={handleSubmit}>Submit</button>
+            {response && (
+                <>
+                    <Select
+                        isMulti
+                        options={options}
+                        onChange={setSelectedFilters}
+                    />
+                    {renderResponse()}
+                </>
+            )}
+        </div>
+    );
+};
 
 export default App;
